@@ -129,7 +129,7 @@ DATABASES = {
         'PASSWORD': 'aze/*-123', # 123
 
          # String. SQL Server instance in "server\instance" format.
-        'HOST': '192.168.88.250, 1433', # .\SQLEXPRESS2012 '',
+        'HOST': '192.168.88.13, 1433', # .\SQLEXPRESS2012 '',
 
         # String. Server instance port. An empty string means the default port.
         'PORT': '',
