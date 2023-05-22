@@ -137,7 +137,8 @@ DATABASES = {
         # Dictionary. Additional database settings.
         'OPTIONS': {
             # String. ODBC Driver to use ("ODBC Driver 17 for SQL Server", 
-            # "SQL Server Native Client 11.0", "FreeTDS" etc). 
+            #'driver': "SQL Server Native Client 11.0",
+	    # "FreeTDS" etc). 
             # Default is "ODBC Driver 17 for SQL Server".
             'driver': 'ODBC Driver 17 for SQL Server',
             'host_is_server': True,
