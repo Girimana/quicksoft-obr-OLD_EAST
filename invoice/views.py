@@ -3,6 +3,8 @@ from .models import Invoice
 import json
 import requests
 from requests.structures import CaseInsensitiveDict
+from django.db.models import Q
+
 
 # ---------------------------------------
 class Object:
@@ -127,7 +129,8 @@ def LoadAndSaveInvoiceFromStringList(lst):
     # Save Invoices/Details to json file
     with open('settings.json', 'r') as file:
         settings = json.load(file)
-        jsonFile = open('{}{}.json'.format(settings['invoice_directory'], invoice.invoice_number), "w")
+        # jsonFile = open('{}{}.json'.format(settings['invoice_directory'], invoice.replace("/", "_")), "w")
+        jsonFile = open('{}{}.json'.format(settings['invoice_directory'], invoice.invoice_number.replace("/", "_")), "w")
         jsonFile.write(json.dumps(invoice_json))
         jsonFile.close()
 
@@ -169,6 +172,9 @@ def check_invoice(invoice_signature, token=None):
     try:
         if token:
             headers["Authorization"] = "Bearer {}".format(token)
+            with open('settings.json', 'r') as file:
+                settings = json.load(file)
+            url = settings['url_api_get_invoice']
         else:
             auth = None
             # Load json settings  
@@ -210,7 +216,7 @@ def send_invoice_offline():
     invoice = None
     invoice_items = None
     
-    x = Invoice.objects.filter(Q(envoyee='False'), Q(envoyee__is__null=True))
+    x = Invoice.objects.filter(Q(envoyee='False') | Q(envoyee__isnull=True))
     for invoice_notsend in x:
         
         try:
@@ -239,7 +245,13 @@ def send_invoice_offline():
     
         # Check if invoice exists
         checked = check_invoice(invoice.invoice_signature, auth.token)
-
+        if checked :
+            obj = Invoice.objects.filter(reference=invoice.invoice_number)
+            for invoice_with_many_articles in obj:
+                if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
+                    invoice_with_many_articles.envoyee=True
+                    invoice_with_many_articles.save()
+     
         if auth and (checked==False) and invoice and invoice_items:
             try:
                 # Load json invoice in '/temps'
@@ -293,11 +305,7 @@ def send_invoice_offline():
         
         elif checked:
             # Mettre à jour la colonne envoyee de la table 'Invoice'
-            obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
-            if obj:
-                obj.envoyee = False
-                obj.save()
-        
+            
             print("====> ERREUR, la facture Réf {} est déjà enregstrée à l'OBR".format(invoice_notsend))
         elif invoice is None or invoice_items is None:
             # Mettre à jour la colonne envoyee de la table 'Invoice'
@@ -324,18 +332,21 @@ def send_invoice_offline():
         
             print("====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference))
 
-        return True
 
 
 # ---------------------------------------
-def send_invoice(request, reference):
+def send_invoice(request):
     """
     Send invoice via API
     """
     url_next = request.GET['url_next']
-    #url_next +="&paramId=" + request.GET['paramId']
-    # print("URL_NEXT: {}".format(url_next))
-
+    if request.method == 'GET' and 'paramId' in request.GET:
+        url_next +="&paramId=" + request.GET['paramId']
+        reference = request.GET['reference']
+    
+    # if request.method == 'GET' and 'reference' in request.GET:
+    #     reference = request.GET['reference']
+    
     auth = None
     invoice = None
     invoice_items = None
@@ -358,7 +369,15 @@ def send_invoice(request, reference):
 
     # Check if invoice exists
     checked = check_invoice(invoice.invoice_signature, auth.token)
-
+    if checked :
+        obj = Invoice.objects.filter(reference=invoice.invoice_number)
+        for invoice_with_many_articles in obj:
+            if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
+                invoice_with_many_articles.envoyee=True
+                invoice_with_many_articles.save()
+            
+            
+    
     if auth and (checked==False) and invoice and invoice_items:
         try:
             # Load json invoice in '/temps'
@@ -384,6 +403,12 @@ def send_invoice(request, reference):
                 
                 print("====> Facture Réf° {} envoyée avec succès à l'OBR".format(reference))
             else:
+                # Mettre à jour la colonne envoyee de la table 'Invoice'
+                obj = Invoice.objects.filter(reference=invoice.reference).first()
+                if obj:
+                    obj.envoyee = False
+                    obj.save()
+                
                 try:
                     msg = json.loads(response.text)
                     msg = ", message: " + msg['msg']
