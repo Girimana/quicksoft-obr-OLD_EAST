@@ -144,7 +144,7 @@ def load_invoice_json_file_by_reference(reference):
     invoice = None
     with open('settings.json', 'r') as file:
         settings = json.load(file)
-        with open('{}{}.json'.format(settings['invoice_directory'], reference), 'r') as file:
+        with open('{}{}.json'.format(settings['invoice_directory'], reference.replace("/", "_")), 'r') as file:
             invoice = json.load(file)
 
     return invoice, invoice['invoice_items']
@@ -255,7 +255,7 @@ def send_invoice_offline():
         if auth and (checked==False) and invoice and invoice_items:
             try:
                 # Load json invoice in '/temps'
-                with open('{}{}.json'.format(settings['invoice_directory'], invoice_notsend), 'r') as json_file_invoice:
+                with open('{}{}.json'.format(settings['invoice_directory'], invoice_notsend.replace("/", "_")), 'r') as json_file_invoice:
                     invoice_to_send = json.load(json_file_invoice)
                 
                 # Send invoice (add invoice)
@@ -381,7 +381,7 @@ def send_invoice(request):
     if auth and (checked==False) and invoice and invoice_items:
         try:
             # Load json invoice in '/temps'
-            with open('{}{}.json'.format(settings['invoice_directory'], reference), 'r') as json_file_invoice:
+            with open('{}{}.json'.format(settings['invoice_directory'], reference.replace("/", "_")), 'r') as json_file_invoice:
                 invoice_to_send = json.load(json_file_invoice)
             
             # Send invoice (add invoice)
