@@ -306,7 +306,7 @@ def send_invoice_offline():
         elif checked:
             # Mettre à jour la colonne envoyee de la table 'Invoice'
             
-            print("====> ERREUR, la facture Réf {} est déjà enregstrée à l'OBR".format(invoice_notsend))
+            print("====> ERREUR, la facture Réf {} est déjà enregistrée à l'OBR".format(invoice_notsend))
         elif invoice is None or invoice_items is None:
             # Mettre à jour la colonne envoyee de la table 'Invoice'
             obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
@@ -400,6 +400,7 @@ def send_invoice(request):
                 if obj:
                     obj.envoyee = True
                     obj.save()
+                url_next +="&msg=" + "====> Facture Réf° {} envoyée avec succès à l'OBR".format(reference)
                 
                 print("====> Facture Réf° {} envoyée avec succès à l'OBR".format(reference))
             else:
@@ -409,29 +410,28 @@ def send_invoice(request):
                     obj.envoyee = False
                     obj.save()
                 
-                try:
-                    msg = json.loads(response.text)
-                    msg = ", message: " + msg['msg']
-                except:
-                    try:
-                        msg = json.loads(response.content)
-                        msg = ", message: " + msg['msg']
-                    except Exception as e:
-                        msg = ", message: " + str(e)
+                url_next +="&msg=" + "====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(reference, msg)
 
                 print("====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(reference, msg))
 
         except Exception as e:
+            url_next +="&msg=" + "====> ERREUR d'envoi de la facture Réf {} à l'OBR, message: {}".format(reference, str(e))
+
             print("====> ERREUR d'envoi de la facture Réf {} à l'OBR, message: {}".format(reference, str(e)))
     
     elif checked:
-        print("====> ERREUR, la facture Réf {} est déjà enregstrée à l'OBR".format(reference))
+        print("====> ERREUR, la facture Réf {} est déjà enregistrée à l'OBR".format(reference))
+        url_next +="&msg=" + "====> ERREUR, la facture Réf {} est déjà enregistrée à l'OBR".format(reference)
     elif invoice is None or invoice_items is None:
         print("====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(reference))
+        url_next +="&msg=" + "====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(reference)
     elif not auth or not auth.token:
         print("====> ERREUR d'authentification à l'API de l'OBR")
+        url_next +="&msg=" + "====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(reference)
     else:
         print("====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference))
+        url_next +="&msg=" + "====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference)
+    
 
     return HttpResponseRedirect(url_next)
 
@@ -474,6 +474,19 @@ def cancel_invoice(request, reference):
             obj = Invoice.objects.filter(reference=reference).first()
             obj.annulee = True
             obj.save()
+        
+        try:
+            msg = json.loads(response.text)
+            msg = ", message: " + msg['msg']
+            url_next +="&msg=" + msg
+        except:
+            try:
+                msg = json.loads(response.content)
+                msg = ", message: " + msg['msg']
+                url_next +="&msg=" + msg
+            except Exception as e:
+                msg = ", message: " + str(e)
+                url_next +="&msg=" + msg
 
             print("====> Facture Réf° {} annulée avec succès à l'OBR".format(reference))
         else:
@@ -491,5 +504,17 @@ def cancel_invoice(request, reference):
             
     except Exception as e:
         print("====> ERREUR d'annulation de la facture Réf {} à l'OBR, message: ".format(reference, str(e)))
+        try:
+            msg = json.loads(response.text)
+            msg = ", message: " + msg['msg']
+            url_next +="&msg=" + msg
+        except:
+            try:
+                msg = json.loads(response.content)
+                msg = ", message: " + msg['msg']
+                url_next +="&msg=" + msg
+            except Exception as e:
+                msg = ", message: " + str(e)
+                url_next +="&msg=" + msg
 
     return HttpResponseRedirect(url_next)
