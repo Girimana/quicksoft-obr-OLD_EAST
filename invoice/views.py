@@ -127,8 +127,8 @@ def LoadAndSaveInvoiceFromStringList(lst):
     invoice_json = json.loads(invoice.toJSON())
 
     # Save Invoices/Details to json file
-    with open('./settings.json', 'r') as file :
-    # with open('settings.json', 'r') as file:
+    # with open('./settings.json', 'r') as file :
+    with open('settings.json', 'r') as file:
         settings = json.load(file)
         # jsonFile = open('{}{}.json'.format(settings['invoice_directory'], invoice.replace("/", "_")), "w")
         jsonFile = open('{}{}.json'.format(settings['invoice_directory'], invoice.invoice_number.replace("/", "_")), "w")
@@ -143,8 +143,8 @@ def load_invoice_json_file_by_reference(reference):
     Load invoice from json file by reference (referece is the name of object)
     """
     invoice = None
-    with open('./settings.json', 'r') as file :
-    # with open('settings.json', 'r') as file:
+    # with open('./settings.json', 'r') as file :
+    with open('settings.json', 'r') as file:
         settings = json.load(file)
         with open('{}{}.json'.format(settings['invoice_directory'], reference.replace("/", "_")), 'r') as file:
             invoice = json.load(file)
@@ -174,15 +174,15 @@ def check_invoice(invoice_signature, token=None):
     try:
         if token:
             headers["Authorization"] = "Bearer {}".format(token)
-            with open('./settings.json', 'r') as file :
-            # with open('settings.json', 'r') as file:
+            # with open('./settings.json', 'r') as file :
+            with open('settings.json', 'r') as file:
                 settings = json.load(file)
             url = settings['url_api_get_invoice']
         else:
             auth = None
             # Load json settings  
-            with open('./settings.json', 'r') as file :
-            # with open('settings.json', 'r') as file:
+            # with open('./settings.json', 'r') as file :
+            with open('settings.json', 'r') as file:
                 settings = json.load(file)
                 if settings:
                     auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
@@ -235,8 +235,8 @@ def send_invoice_offline():
                 pass
 
         try:
-            with open('./settings.json', 'r') as file :
-            # with open('settings.json', 'r') as file:
+            # with open('./settings.json', 'r') as file :
+            with open('settings.json', 'r') as file:
                 settings = json.load(file)
                 if settings:
                     auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
@@ -366,8 +366,8 @@ def send_invoice(request):
             print("Error, fichier json not created")
             pass
 
-    with open('./settings.json', 'r') as file :
-    # with open('settings.json', 'r') as file:
+    # with open('./settings.json', 'r') as file :
+    with open('settings.json', 'r') as file:
         settings = json.load(file)
         if settings:
             auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
@@ -457,8 +457,8 @@ def cancel_invoice(request, reference):
         # Load invoice json file
         invoice, invoice_items = load_invoice_json_file_by_reference(reference)
 
-        with open('./settings.json', 'r') as file :
-        # with open('settings.json', 'r') as file:
+        # with open('./settings.json', 'r') as file :
+        with open('settings.json', 'r') as file:
             settings = json.load(file)
             if settings:
                 auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
