@@ -346,9 +346,9 @@ def send_invoice(request):
     Send invoice via API
     """
     url_next = request.GET['url_next']
+    reference = request.GET['reference']
     if request.method == 'GET' and 'paramId' in request.GET:
         url_next +="&paramId=" + request.GET['paramId']
-    reference = request.GET['reference']
     
     # if request.method == 'GET' and 'reference' in request.GET:
     #     reference = request.GET['reference']
