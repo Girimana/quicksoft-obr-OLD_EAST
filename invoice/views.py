@@ -121,6 +121,7 @@ def LoadAndSaveInvoiceFromStringList(lst):
     invoice.invoice_ref = obj_str_invoice[28].strip()
     invoice.invoice_signature = obj_str_invoice[29].strip()
     invoice.invoice_signature_date = obj_str_invoice[30].strip()
+    invoice.cn_motif = obj_str_invoice[31].strip()
     invoice.invoice_items = invoice_items
 
     # Convert invoice obect into json format
@@ -415,7 +416,7 @@ def send_invoice(request):
                 if obj:
                     obj.envoyee = False
                     obj.save()
-                    
+
                 msg = json.loads(response.text)
                 url_next +="&msg=" + "====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(reference, msg)
 
