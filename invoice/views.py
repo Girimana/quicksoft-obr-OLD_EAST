@@ -319,7 +319,7 @@ def send_invoice_offline():
                 obj.envoyee = False
                 obj.save()
         
-            print("====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(reference))
+            print("====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(invoice_notsend.reference))
         elif not auth or not auth.token:
             # Mettre à jour la colonne envoyee de la table 'Invoice'
             obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
@@ -335,7 +335,7 @@ def send_invoice_offline():
                 obj.envoyee = False
                 obj.save()
         
-            print("====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference))
+            print("====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(invoice_notsend.reference))
 
 
 
@@ -415,7 +415,8 @@ def send_invoice(request):
                 if obj:
                     obj.envoyee = False
                     obj.save()
-                
+                    
+                msg = json.loads(response.text)
                 url_next +="&msg=" + "====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(reference, msg)
 
                 print("====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(reference, msg))
