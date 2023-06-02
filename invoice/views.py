@@ -239,17 +239,19 @@ def send_invoice_offline():
 
         try:
             with open('settings.json', 'r') as file :
-            # with open('settings.json', 'r') as file:
                 settings = json.load(file)
                 if settings:
                     auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
                     auth.connect() # Connect to endpoint 
         except:
-            # Mettre à jour la colonne envoyee de la table 'Invoice'
-            obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
-            if obj:
-                obj.envoyee = False
-                obj.save()
+            # Mettre à jour la colonne envoyee et response de la table 'Invoice'
+            if (auth._msg == "Nom d’utilisateur ou mot de passe incorrect."):
+                obj = Invoice.objects.filter(reference=invoice.invoice_number)
+                for invoice_with_many_articles in obj:
+                    invoice_with_many_articles.envoyee = False
+                    invoice_with_many_articles.response = auth._msg
+                    invoice_with_many_articles.save()
+
     
         # Check if invoice exists
         checked = check_invoice(invoice.invoice_signature, auth.token)
@@ -260,7 +262,7 @@ def send_invoice_offline():
                     invoice_with_many_articles.envoyee=True
                     invoice_with_many_articles.save()
      
-        if auth and (checked==False) and invoice and invoice_items:
+        if auth.is_connected and (checked==False) and invoice and invoice_items:
             try:
                 # Load json invoice in '/temps'
                 with open('{}{}.json'.format(settings['invoice_directory'], invoice_notsend.reference.replace("/", "_")), 'r') as json_file_invoice:
@@ -281,6 +283,7 @@ def send_invoice_offline():
                     obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
                     if obj:
                         obj.envoyee = True
+                        obj.response = "Facture ajoutée avec succées"
                         obj.save()
                     print("====> Facture Réf° {} envoyée avec succès à l'OBR".format(invoice_notsend))
                 else:
@@ -290,16 +293,14 @@ def send_invoice_offline():
                         obj.envoyee = False
                         obj.save()
                 
-                    try:
-                        msg = json.loads(response.text)
-                        msg = ", message: " + msg['msg']
-                    except:
-                        try:
-                            msg = json.loads(response.content)
-                            msg = ", message: " + msg['msg']
-                        except Exception as e:
-                            msg = ", message: " + str(e)
-
+                    msg = json.loads(response.text)
+                    msg = msg['msg']
+                    obj = Invoice.objects.filter(reference=invoice.invoice_number).first()
+                    if obj:
+                        obj.envoyee = False
+                        obj.response = msg
+                        obj.save()
+                    
                     print("====> ERREUR, d'envoi de la facture Réf {} à l'OBR {}".format(invoice_notsend, msg))
 
             except Exception as e:
@@ -329,6 +330,15 @@ def send_invoice_offline():
             if obj:
                 obj.envoyee = False
                 obj.save()
+            
+            if auth._msg:
+                if obj:
+                    obj.response = "ERREUR d'accès au serveur de l'OBR, {}".format(auth._msg)
+                    obj.save()
+            else:
+                if obj:
+                    obj.response = "ERREUR de connexion à l'API de l'OBR"
+                    obj.save()
         
             print("====> ERREUR d'authentification à l'API de l'OBR")
         else:
@@ -369,18 +379,20 @@ def send_invoice(request):
             print("Error, fichier json not created")
             pass
 
-    # with open('./settings.json', 'r') as file :
-    with open('settings.json', 'r') as file:
-        settings = json.load(file)
-        if settings:
-            auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
-            auth.connect() # Connect to endpoint 
+    try:
+        with open('settings.json', 'r') as file:
+            settings = json.load(file)
+            if settings:
+                auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
+                auth.connect() # Connect to endpoint 
     
-    if (auth._msg == "Nom d’utilisateur ou mot de passe incorrect."):
-        obj = Invoice.objects.filter(reference=invoice.invoice_number)
-        for invoice_with_many_articles in obj:
-            invoice_with_many_articles.response = auth._msg
-            invoice_with_many_articles.save()
+    except:
+        # Mettre à jour la colonne envoyee et response de la table 'Invoice'
+        if (auth._msg == "Nom d’utilisateur ou mot de passe incorrect."):
+            obj = Invoice.objects.filter(reference=invoice.invoice_number)
+            for invoice_with_many_articles in obj:
+                invoice_with_many_articles.response = auth._msg
+                invoice_with_many_articles.save()
 
     # Check if invoice exists
     checked = check_invoice(invoice.invoice_signature, auth.token)
@@ -447,8 +459,22 @@ def send_invoice(request):
         url_next +="&msg=" + "====> ERREUR, Erreur de création du fichier Json facture ou donnée incorrect générée par QuickSoft, Réf {}".format(reference)
     elif not auth or not auth.token:
         print("====> ERREUR d'authentification à l'API de l'OBR")
-        
-        url_next +="&msg=" + "====> ERREUR accès au serveur de l'OBR, {}".format(auth._msg) 
+        # Mettre à jour la colonne envoyee de la table 'Invoice'
+        obj = Invoice.objects.filter(reference=invoice.invoice_number).first()
+        if obj:
+            obj.envoyee = False
+            obj.save()
+        if auth._msg:
+            url_next +="&msg=" + "====> ERREUR d'accès au serveur de l'OBR, {}".format(auth._msg)
+            if obj:
+                obj.response = "ERREUR d'accès au serveur de l'OBR, {}".format(auth._msg)
+                obj.save()
+        else:
+            url_next +="&msg=" + "====> ERREUR de connexion à l'API de l'OBR"
+            if obj:
+                obj.response = "ERREUR de connexion à l'API de l'OBR"
+                obj.save()
+            
     else:
         print("====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference))
         url_next +="&msg=" + "====> ERREUR innattendue pour l'envoi de la facture, facture Réf {}, veuillez contacter votre fournisseur de logiciel".format(reference)

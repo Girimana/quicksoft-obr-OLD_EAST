@@ -84,36 +84,6 @@ WSGI_APPLICATION = 'core.wsgi.application'
 # }
 
 
-# DATABASES = {
-#     'default': {
-#         # String. It must be "mssql".
-#         'ENGINE': 'mssql',
-
-#         # String. Database name. Required.
-#         'NAME': 'QuickSoft',
-
-#         # String. Database user name in "user" format. If not given then MS Integrated Security will be used.
-#         'USER': 'sa',
-
-#         # String. Database user password.
-#         'PASSWORD': '123', # 123
-
-#          # String. SQL Server instance in "server\instance" format.
-#         'HOST': '.\SQLEXPRESS2012', #  '192.168.88.128, 1433',
-
-#         # String. Server instance port. An empty string means the default port.
-#         'PORT': '',
-
-#         # Dictionary. Additional database settings.
-#         'OPTIONS': {
-#             # String. ODBC Driver to use ("ODBC Driver 17 for SQL Server", 
-#             # "SQL Server Native Client 11.0", "FreeTDS" etc). 
-#             # Default is "ODBC Driver 17 for SQL Server".
-#             'driver': 'ODBC Driver 17 for SQL Server',
-#             'host_is_server': True,
-#         },
-#     },
-# }
 DATABASES = {
     'default': {
         # String. It must be "mssql".
@@ -123,13 +93,13 @@ DATABASES = {
         'NAME': 'QuickSoft',
 
         # String. Database user name in "user" format. If not given then MS Integrated Security will be used.
-        'USER': 'quicksoft',
+        'USER': 'sa',
 
         # String. Database user password.
-        'PASSWORD': 'aze/*-123', # 123
+        'PASSWORD': '123', # 123
 
          # String. SQL Server instance in "server\instance" format.
-        'HOST': '192.168.10.157, 1433', # .\SQLEXPRESS2012 '',
+        'HOST': '.\SQLEXPRESS2012', #  '192.168.88.128, 1433',
 
         # String. Server instance port. An empty string means the default port.
         'PORT': '',
@@ -137,14 +107,44 @@ DATABASES = {
         # Dictionary. Additional database settings.
         'OPTIONS': {
             # String. ODBC Driver to use ("ODBC Driver 17 for SQL Server", 
-            #'driver': "SQL Server Native Client 11.0",
-	    # "FreeTDS" etc). 
+            # "SQL Server Native Client 11.0", "FreeTDS" etc). 
             # Default is "ODBC Driver 17 for SQL Server".
             'driver': 'ODBC Driver 17 for SQL Server',
             'host_is_server': True,
         },
     },
 }
+# DATABASES = {
+#     'default': {
+#         # String. It must be "mssql".
+#         'ENGINE': 'mssql',
+
+#         # String. Database name. Required.
+#         'NAME': 'QuickSoft',
+
+#         # String. Database user name in "user" format. If not given then MS Integrated Security will be used.
+#         'USER': 'quicksoft',
+
+#         # String. Database user password.
+#         'PASSWORD': 'aze/*-123', # 123
+
+#          # String. SQL Server instance in "server\instance" format.
+#         'HOST': '192.168.10.157, 1433', # .\SQLEXPRESS2012 '',
+
+#         # String. Server instance port. An empty string means the default port.
+#         'PORT': '',
+
+#         # Dictionary. Additional database settings.
+#         'OPTIONS': {
+#             # String. ODBC Driver to use ("ODBC Driver 17 for SQL Server", 
+#             #'driver': "SQL Server Native Client 11.0",
+# 	    # "FreeTDS" etc). 
+#             # Default is "ODBC Driver 17 for SQL Server".
+#             'driver': 'ODBC Driver 17 for SQL Server',
+#             'host_is_server': True,
+#         },
+#     },
+# }
 
 
 # Password validation
