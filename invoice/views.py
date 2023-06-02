@@ -260,6 +260,7 @@ def send_invoice_offline():
             for invoice_with_many_articles in obj:
                 if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
                     invoice_with_many_articles.envoyee=True
+                    invoice_with_many_articles.response = "Facture ajoutée avec succées"
                     invoice_with_many_articles.save()
      
         if auth.is_connected and (checked==False) and invoice and invoice_items:
@@ -566,3 +567,45 @@ def cancel_invoice(request, reference):
                 url_next +="&msg=" + msg
 
     return HttpResponseRedirect(url_next)
+
+    def check_TIN(invoice_signature, token=None):
+    
+    # check if TIN is valid or not
+    
+        headers = CaseInsensitiveDict()
+        headers["Accept"] = "application/json"
+        url = None
+        try:
+            if token:
+                headers["Authorization"] = "Bearer {}".format(token)
+                with open('./settings.json', 'r') as file :
+                # with open('settings.json', 'r') as file:
+                    settings = json.load(file)
+                url = settings['url_api_get_invoice']
+            else:
+                auth = None
+                # Load json settings  
+                with open('./settings.json', 'r') as file :
+                # with open('settings.json', 'r') as file:
+                    settings = json.load(file)
+                    if settings:
+                        auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
+                        auth.connect() # Connect to endpoint 
+                        headers["Authorization"] = "Bearer {}".format(auth.token)
+                        url = settings['url_api_get_invoice']
+        
+            response = requests.post(
+                url, 
+                data=json.dumps(
+                    { 
+                        "invoice_signature": invoice_signature
+                    }
+                ),
+                headers=headers
+            )
+            if (response.status_code in [200, 201, 202]):
+                return True
+        except:
+            pass
+        
+    return False
