@@ -402,6 +402,7 @@ def send_invoice(request):
         for invoice_with_many_articles in obj:
             if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
                 invoice_with_many_articles.envoyee=True
+                invoice_with_many_articles.response="Facture ajoutée avec succées"
                 invoice_with_many_articles.save()
             
             
