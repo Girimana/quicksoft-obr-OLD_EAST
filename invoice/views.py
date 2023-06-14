@@ -569,44 +569,48 @@ def cancel_invoice(request, reference):
 
     return HttpResponseRedirect(url_next)
 
-    def check_TIN(invoice_signature, token=None):
+def check_TIN(request):
     
     # check if TIN is valid or not
+    url_next = request.GET['url_next']
+    nif = request.GET['numNif']
     
-        headers = CaseInsensitiveDict()
-        headers["Accept"] = "application/json"
-        url = None
-        try:
-            if token:
-                headers["Authorization"] = "Bearer {}".format(token)
-                with open('./settings.json', 'r') as file :
-                # with open('settings.json', 'r') as file:
-                    settings = json.load(file)
-                url = settings['url_api_get_invoice']
-            else:
-                auth = None
-                # Load json settings  
-                with open('./settings.json', 'r') as file :
-                # with open('settings.json', 'r') as file:
-                    settings = json.load(file)
-                    if settings:
-                        auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
-                        auth.connect() # Connect to endpoint 
-                        headers["Authorization"] = "Bearer {}".format(auth.token)
-                        url = settings['url_api_get_invoice']
-        
-            response = requests.post(
-                url, 
-                data=json.dumps(
-                    { 
-                        "invoice_signature": invoice_signature
-                    }
-                ),
-                headers=headers
-            )
-            if (response.status_code in [200, 201, 202]):
-                return True
-        except:
-            pass
-        
-    return False
+    headers = CaseInsensitiveDict()
+    headers["Accept"] = "application/json"
+    url = None
+    try:
+        auth = None
+            # Load json settings  
+        with open('settings.json', 'r') as file :
+            settings = json.load(file)
+            if settings:
+                auth = AuthenticationEBMS(settings['username'], settings['password'], settings['url_api_login'])
+                auth.connect() # Connect to endpoint 
+                headers["Authorization"] = "Bearer {}".format(auth.token)
+                url = settings['url_api_verify_nif']
+            
+        response = requests.post(
+            url, 
+            data=json.dumps(
+                { 
+                    "tp_TIN": nif
+                }
+            ),
+            headers=headers
+        )
+        if (response.status_code in [200, 201, 202]):
+
+            customer_name = json.loads(response.text)['result']['taxpayer'][0]['tp_name'] 
+            
+            url_next += "&valid=True&customer_name=" + customer_name
+
+            return HttpResponseRedirect(url_next)
+
+    except:
+        pass
+    if auth.is_connected == False:
+        url_next += "&connect=false"
+    else:
+        url_next += "&connect=true"
+    url_next += "&valid=False"
+    return HttpResponseRedirect(url_next)
