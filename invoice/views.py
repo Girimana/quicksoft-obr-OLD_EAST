@@ -78,11 +78,13 @@ def LoadAndSaveInvoiceFromStringList(lst):
         item.item_designation = obj_str_item[0].strip()
         item.item_quantity = obj_str_item[1].strip()
         item.item_price = obj_str_item[2].strip()
-        item.item_price_nvat = obj_str_item[3].strip()
-        item.vat = obj_str_item[4].strip()
-        item.item_price_wvat = obj_str_item[5].strip()
-        item.item_total_amount = obj_str_item[6].strip()
-        
+        item.item_ct = obj_str_item[3].strip()
+        item.item_tl = obj_str_item[4].strip()
+        item.item_price_nvat = obj_str_item[5].strip()
+        item.vat = obj_str_item[6].strip()
+        item.item_price_wvat = obj_str_item[7].strip()
+        item.item_total_amount = obj_str_item[8].strip()
+
         # collect items
         invoice_items.append(item)
 
