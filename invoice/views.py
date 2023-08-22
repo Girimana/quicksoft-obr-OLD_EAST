@@ -245,12 +245,13 @@ def send_invoice_offline():
                     auth.connect() # Connect to endpoint 
         except:
             # Mettre à jour la colonne envoyee et response de la table 'Invoice'
-            if (auth._msg == "Nom d’utilisateur ou mot de passe incorrect."):
-                obj = Invoice.objects.filter(reference=invoice.invoice_number)
-                for invoice_with_many_articles in obj:
-                    invoice_with_many_articles.envoyee = False
-                    invoice_with_many_articles.response = auth._msg
-                    invoice_with_many_articles.save()
+            if auth : 
+                if (auth._msg == "Nom d’utilisateur ou mot de passe incorrect."):
+                    obj = Invoice.objects.filter(reference=invoice.invoice_number)
+                    for invoice_with_many_articles in obj:
+                        invoice_with_many_articles.envoyee = False
+                        invoice_with_many_articles.response = auth._msg
+                        invoice_with_many_articles.save()
 
     
         # Check if invoice exists
