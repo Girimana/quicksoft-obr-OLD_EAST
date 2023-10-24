@@ -1,10 +1,12 @@
 {
     "username": "wsl400000332900345",
-        "password": "eU*|v0rQ",
+    "password": "eU*|v0rQ",
     "url_api_login": "https://ebms.obr.gov.bi:8443/ebms_api/login/",
     "url_api_get_invoice": "https://ebms.obr.gov.bi:8443/ebms_api/getInvoice/",
-    "url_api_add_invoice":"https://ebms.obr.gov.bi:8443/ebms_api/addInvoice/",
+    "url_api_add_invoice":"https://ebms.obr.gov.bi:8443/ebms_api/addInvoice_confirm/",
     "url_api_verify_nif": "https://ebms.obr.gov.bi:8443/ebms_api/checkTIN/",
     "url_api_cancel_invoice": "https://ebms.obr.gov.bi:8443/ebms_api/cancelInvoice/",
-    "invoice_directory": "temps/"
+    "url_api_add_stock_mouvement": "https://ebms.obr.gov.bi:8443/ebms_api/AddStockMovement" ,
+    "invoice_directory": "temps/",
+    "stock_directory": "stock_temps/"
 }
