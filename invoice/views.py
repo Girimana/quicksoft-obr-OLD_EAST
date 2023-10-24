@@ -259,10 +259,10 @@ def send_invoice_offline():
         if checked :
             obj = Invoice.objects.filter(reference=invoice.invoice_number)
             for invoice_with_many_articles in obj:
-                if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
-                    invoice_with_many_articles.envoyee=True
-                    invoice_with_many_articles.response = "Facture ajoutée avec succées"
-                    invoice_with_many_articles.save()
+                # if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
+                invoice_with_many_articles.envoyee=True
+                invoice_with_many_articles.response = "Facture ajoutée avec succées"
+                invoice_with_many_articles.save()
      
         if auth.is_connected and (checked==False) and invoice and invoice_items:
             try:
@@ -401,10 +401,10 @@ def send_invoice(request):
     if checked :
         obj = Invoice.objects.filter(reference=invoice.invoice_number)
         for invoice_with_many_articles in obj:
-            if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
-                invoice_with_many_articles.envoyee=True
-                invoice_with_many_articles.response="Facture ajoutée avec succées"
-                invoice_with_many_articles.save()
+            # if (invoice_with_many_articles.envoyee == False) or (invoice_with_many_articles.envoyee == None) :
+            invoice_with_many_articles.envoyee=True
+            invoice_with_many_articles.response="Facture ajoutée avec succées"
+            invoice_with_many_articles.save()
             
             
     
