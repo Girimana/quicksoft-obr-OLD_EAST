@@ -121,7 +121,7 @@ def LoadAndSaveInvoiceFromStringList(lst):
     invoice.cancelled_invoice_ref = obj_str_invoice[26].strip()
     invoice.cancelled_invoice = obj_str_invoice[27].strip()
     invoice.invoice_ref = obj_str_invoice[28].strip()
-    invoice.invoice_signature = obj_str_invoice[29].strip()
+    invoice.invoice_identifier = obj_str_invoice[29].strip()
     invoice.invoice_signature_date = obj_str_invoice[30].strip()
     invoice.cn_motif = obj_str_invoice[31].strip()
     invoice.invoice_items = invoice_items
@@ -155,7 +155,7 @@ def load_invoice_json_file_by_reference(reference):
     return invoice, invoice['invoice_items']
 
 # ---------------------------------------
-def check_invoice(invoice_signature, token=None):
+def check_invoice(invoice_identifier, token=None):
     """
     Check if invoice exists
     Protocol http de la méthode: POST
@@ -164,10 +164,10 @@ def check_invoice(invoice_signature, token=None):
     Authorization:Bearer xxx
     Corps de la requête
     {
-        "invoice_signature":"xxx"
+        "invoice_identifier":"xxx"
     }
     Champs obligatoires
-    invoice_signature
+    invoice_identifier
     """
     # Send invoice (add invoice)
     
@@ -197,7 +197,7 @@ def check_invoice(invoice_signature, token=None):
             url, 
             data=json.dumps(
                 { 
-                    "invoice_signature": invoice_signature
+                    "invoice_identifier": invoice_identifier
                 }
             ),
             headers=headers
@@ -255,7 +255,7 @@ def send_invoice_offline():
 
     
         # Check if invoice exists
-        checked = check_invoice(invoice.invoice_signature, auth.token)
+        checked = check_invoice(invoice.invoice_identifier, auth.token)
         if checked :
             obj = Invoice.objects.filter(reference=invoice.invoice_number)
             for invoice_with_many_articles in obj:
@@ -397,7 +397,7 @@ def send_invoice(request):
                 invoice_with_many_articles.save()
 
     # Check if invoice exists
-    checked = check_invoice(invoice.invoice_signature, auth.token)
+    checked = check_invoice(invoice.invoice_identifier, auth.token)
     if checked :
         obj = Invoice.objects.filter(reference=invoice.invoice_number)
         for invoice_with_many_articles in obj:
@@ -490,7 +490,7 @@ def cancel_invoice(request, reference):
     """
     Canbcel invoice via API
     body: {
-        "invoice_signature":"4701354861/ws470135486100027/20220211120214/01929"
+        "invoice_identifier":"4701354861/ws470135486100027/20220211120214/01929"
     }
     """
     url_next = request.GET['url_next']
@@ -517,7 +517,7 @@ def cancel_invoice(request, reference):
         headers["Authorization"] = "Bearer {}".format(auth.token)
         response = requests.post(
             url, 
-            data=json.dumps({"invoice_signature": invoice['invoice_signature']}),
+            data=json.dumps({"invoice_identifier": invoice['invoice_identifier']}),
             headers=headers
         )
         if (response.status_code in [200, 201, 202]):
