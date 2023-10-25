@@ -121,6 +121,7 @@ def LoadAndSaveInvoiceFromStringList(lst):
     invoice.cancelled_invoice_ref = obj_str_invoice[26].strip()
     invoice.cancelled_invoice = obj_str_invoice[27].strip()
     invoice.invoice_ref = obj_str_invoice[28].strip()
+    # invoice.invoice_signature = obj_str_invoice[29].strip()
     invoice.invoice_identifier = obj_str_invoice[29].strip()
     invoice.invoice_signature_date = obj_str_invoice[30].strip()
     invoice.cn_motif = obj_str_invoice[31].strip()
@@ -282,10 +283,13 @@ def send_invoice_offline():
                 )
                 if (response.status_code in [200, 201, 202]):
                     # Mettre à jour la colonne envoyee de la table 'Invoice'
+                    msg = json.loads(response.text)
+                    msg = msg['electronic_signature']
                     obj = Invoice.objects.filter(reference=invoice_notsend.reference).first()
                     if obj:
                         obj.envoyee = True
                         obj.response = "Facture ajoutée avec succées"
+                        obj.electronic_signature = msg
                         obj.save()
                     print("====> Facture Réf° {} envoyée avec succès à l'OBR".format(invoice_notsend))
                 else:
@@ -426,10 +430,13 @@ def send_invoice(request):
             )
             if (response.status_code in [200, 201, 202]):
                 # Mettre à jour la colonne envoyee de la table 'Invoice'
+                msg = json.loads(response.text)
+                msg = msg['electronic_signature']
                 obj = Invoice.objects.filter(reference=reference).first()
                 if obj:
                     obj.envoyee = True
                     obj.response = "Facture ajoutée avec succées"
+                    obj.electronic_signature = msg
                     obj.save()
                 url_next +="&msg=" + "====> Facture Réf° {} envoyée avec succès à l'OBR".format(reference)
                 

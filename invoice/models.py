@@ -10,6 +10,7 @@ class Invoice(models.Model):
     envoyee = models.BooleanField(db_column='Envoyee', default=False)
     annulee = models.BooleanField(db_column='Annulee', default=False)
     response = models.CharField(db_column='Response', max_length=1000, db_collation='French_CI_AS', blank=True, null=True)
+    electronic_signature = models.CharField(db_column='electronic_signature', max_length=5000, db_collation='French_CI_AS', blank=True, null=True)
 
     class Meta:
         managed = False
