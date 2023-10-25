@@ -175,7 +175,7 @@ def check_invoice(invoice_identifier, token=None):
     headers["Accept"] = "application/json"
     url = None
     try:
-        if token:
+        if token: 
             headers["Authorization"] = "Bearer {}".format(token)
             with open('./settings.json', 'r') as file :
             # with open('settings.json', 'r') as file:
