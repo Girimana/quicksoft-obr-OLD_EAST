@@ -337,6 +337,17 @@ def send_stock_offline():
 
                     print("====> La transaction de Réf° {} a été ajoutée avec succès à l'OBR".format(
                         invoice_notsend.reference))
+                elif ((json.loads(response.text))['msg'] == "Le mouvement de stock a deja ete enregistre dans le systeme") :
+                    obj = Stock.objects.filter(
+                        reference=invoice_notsend.reference)
+                    if obj:
+                        msg = json.loads(response.text)
+                        msg = msg['msg']
+                        for stock_data in obj:
+                            if (stock_data.envoyee == False) or (stock_data.envoyee == None):
+                                stock_data.envoyee = True
+                                stock_data.response= msg
+                                stock_data.save()
                 else:
                     # Mettre à jour la colonne envoyee de la table 'Stock'
                     obj = Stock.objects.filter(
