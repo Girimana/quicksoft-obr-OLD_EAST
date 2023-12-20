@@ -9,7 +9,7 @@ def start_send_invoice_offline_job():
 
     scheduler.add_job(send_invoice_offline, 'interval', seconds=10)
     scheduler.add_job(send_stock_offline, 'interval', seconds=10)
-    
+     
     scheduler.start()
     
 
